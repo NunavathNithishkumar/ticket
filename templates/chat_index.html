@@ -1,0 +1,1290 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sensei Chatbot - Starry Sky with Screenshot & Voice</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    /* Starry sky and glassmorphism styling */
+    body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #000; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, #08081a 0%, #1a1b2e 70%, #000000 100%); z-index: -2; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>\
+          <circle cx='2' cy='2' r='1' fill='%23ffffff' />\
+        </svg>") repeat; background-size: 40px 40px; opacity: 0.4; animation: driftStars 60s linear infinite; z-index: -1; }
+    @keyframes driftStars { 0% { background-position: 0 0; } 100% { background-position: 0 2000px; } }
+    .chat-container { position: relative; width: 95%; max-width: 900px; height: 85vh; display: flex; flex-direction: column; background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 0 30px rgba(0,0,0,0.3); overflow: hidden; transform-style: preserve-3d; transition: transform 0.8s ease; }
+    .chat-container:hover { transform: perspective(1000px) rotateX(4deg) rotateY(-4deg); }
+    .chat-header { text-align: center; padding: 1rem; font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 500; background: linear-gradient(to right, #ff7b7b, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; }
+    .chat-header::after { content: ""; position: absolute; bottom: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(to right, #ff7b7b, #ffb347); opacity: 0.6; }
+    .chat-window { flex: 1; overflow-y: auto; padding: 1rem; scroll-behavior: smooth; }
+    .chat-window::-webkit-scrollbar { width: 8px; }
+    .chat-window::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.15); border-radius: 9999px; }
+    .message { margin-bottom: 1rem; max-width: 80%; word-break: break-word; animation: bubble-enter 0.5s ease forwards; }
+    .message strong { display: block; font-size: 0.7rem; opacity: 0.8; margin-bottom: 0.2rem; }
+    .user-msg { text-align: right; margin-left: auto; transform: translateX(40px); opacity: 0; }
+    .assistant-msg { text-align: left; margin-right: auto; transform: translateX(-40px); opacity: 0; }
+    @keyframes bubble-enter { to { transform: translateX(0); opacity: 1; } from { opacity: 0; } }
+    .bubble { padding: 0.8rem 1rem; border-radius: 0.75rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s ease, background 0.2s ease; }
+    .bubble:hover { transform: scale(1.02); }
+    .user-msg .bubble { background: linear-gradient(90deg, rgba(80,200,255,0.2), rgba(80,200,255,0.1)); border-color: rgba(80,200,255,0.3); }
+    .assistant-msg .bubble { background: linear-gradient(90deg, rgba(255,123,123,0.2), rgba(255,179,71,0.1)); border-color: rgba(255,123,123,0.3); }
+    .input-bar { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.8rem; background: rgba(255,255,255,0.04); box-shadow: inset 0 -6px 12px rgba(0,0,0,0.3); }
+    .chat-textarea { width: 100%; resize: none; min-height: 50px; max-height: 120px; border: none; outline: none; border-radius: 0.5rem; padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.1); color: #fff; box-shadow: inset 0 2px 6px rgba(0,0,0,0.25); }
+    .input-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .icon-btn { position: relative; width: 2.5rem; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff7b7b, #ffb347); border: none; border-radius: 0.5rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+    .icon-btn:hover { transform: scale(1.08); }
+    .icon-btn:active { transform: scale(0.94); }
+    .chat-options { display: flex; justify-content: center; gap: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.06); }
+    .chat-options button { padding: 0.5rem 1rem; font-size: 0.85rem; color: #fff; background: linear-gradient(to right, #ff7b7b, #ffb347); border: none; border-radius: 0.75rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .chat-options button:hover { transform: perspective(500px) rotateX(10deg); }
+    .chat-options button:active { transform: scale(0.95); }
+    #screenshot-container { display: none; background: rgba(255,255,255,0.06); padding: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">Sensei Chatbot</div>
+  <div id="chat-window" class="chat-window"></div>
+
+  <div class="input-bar">
+    <textarea id="user-input" class="chat-textarea" placeholder="Type your message..."></textarea>
+    <div class="input-actions">
+      <button id="send-btn" class="icon-btn" title="Send">Send</button>
+      <button id="record-btn" class="icon-btn" title="Record Voice">Rec</button>
+      <button id="play-btn" class="icon-btn" title="Play TTS" disabled>Play</button>
+    </div>
+  </div>
+
+  <div class="chat-options">
+    <button id="btn-view-transaction">View Transaction</button>
+    <button id="btn-raise-ticket">Raise Ticket</button>
+    <button id="btn-ticket-status">Ticket Status</button>
+    <button id="btn-chat">Ask Chatbot</button>
+  </div>
+
+  <div id="screenshot-container">
+    <label for="screenshot-file" class="block text-sm mb-1">Optional Screenshot:</label>
+    <input id="screenshot-file" type="file" accept="image/*" />
+  </div>
+</div>
+
+<script>
+  let sessionId = localStorage.getItem("chat_session_id") || ("sess_" + Math.floor(Math.random()*1000000));
+  localStorage.setItem("chat_session_id", sessionId);
+
+  const chatWindow = document.getElementById("chat-window");
+  const userInput = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const recordBtn = document.getElementById("record-btn");
+  const playBtn = document.getElementById("play-btn");
+  const screenshotContainer = document.getElementById("screenshot-container");
+  const screenshotFile = document.getElementById("screenshot-file");
+
+  let currentAction = null;
+  let recognition = null;
+  let lastResponse = "";
+  let heeraVoice = null;
+
+  let ticketFlowStep = 0;
+  let ticketTitle = "";
+  let ticketDescription = "";
+  let ticketPriority = "";
+  let ticketAdditional = "";
+  let classification = null;
+  let solution = null;
+
+  function appendMessage(sender, text) {
+    const msgClass = (sender==="assistant")?"assistant-msg":"user-msg";
+    const label = (sender==="assistant")?"Sensei":"You";
+    const html = `<div class="message ${msgClass}"><strong>${label}</strong><div class="bubble">${text}</div></div>`;
+    chatWindow.insertAdjacentHTML("beforeend", html);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function setCurrentAction(action) {
+    currentAction = action;
+    ticketFlowStep = 0;
+    ticketTitle = "";
+    ticketDescription = "";
+    ticketPriority = "";
+    ticketAdditional = "";
+    classification = null;
+    solution = null;
+    screenshotContainer.style.display = "none";
+    screenshotFile.value = "";
+  }
+
+  function resetInput() {
+    userInput.value = "";
+    userInput.focus();
+  }
+
+  document.getElementById("btn-view-transaction").addEventListener("click", () => {
+    setCurrentAction("transaction");
+    appendMessage("assistant","Please enter the Transaction ID:");
+  });
+  document.getElementById("btn-raise-ticket").addEventListener("click", () => {
+    setCurrentAction("raise_ticket");
+    appendMessage("assistant","Please describe the error or issue you're facing:");
+  });
+  document.getElementById("btn-ticket-status").addEventListener("click", () => {
+    setCurrentAction("ticket_status");
+    appendMessage("assistant","Please enter your Ticket ID:");
+  });
+  document.getElementById("btn-chat").addEventListener("click", () => {
+    setCurrentAction("chat");
+    appendMessage("assistant","How can I help you today?");
+  });
+
+  sendBtn.addEventListener("click", () => handleUserMessage());
+  userInput.addEventListener("keypress", e => {
+    if(e.key==="Enter") { e.preventDefault(); handleUserMessage(); }
+  });
+
+  function handleUserMessage(overrideText=null) {
+    const text = overrideText || userInput.value.trim();
+    if(!text) return;
+    appendMessage("user", text);
+    resetInput();
+    switch(currentAction) {
+      case "transaction": handleTransaction(text); break;
+      case "raise_ticket": handleRaiseTicketFlow(text); break;
+      case "ticket_status": handleTicketStatus(text); break;
+      case "chat": handleChatbot(text); break;
+      default: handleChatbot(text); break;
+    }
+  }
+
+  function handleTransaction(txnId) {
+    fetch("/get_transaction", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({transaction_id:txnId})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.transaction_details) appendMessage("assistant", data.transaction_details);
+      else appendMessage("assistant", data.message||"Transaction not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error fetching transaction.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleRaiseTicketFlow(userText) {
+    if(ticketFlowStep===0) {
+      classifyUserError(userText);
+    }
+    else if(ticketFlowStep===0.5) {
+      const lower = userText.toLowerCase();
+      if(lower==="no"||lower==="done") {
+        appendMessage("assistant","No problem! Let me know if you need anything else.");
+        setCurrentAction(null);
+      } else {
+        appendMessage("assistant","Please provide a Title for your issue:");
+        ticketFlowStep=1;
+      }
+    }
+    else if(ticketFlowStep===1) {
+      ticketTitle = userText;
+      appendMessage("assistant","Understood. Please provide a brief description of the issue:");
+      ticketFlowStep=2;
+    }
+    else if(ticketFlowStep===2) {
+      ticketDescription = userText;
+      appendMessage("assistant","What is the priority? (High, Medium, Low)");
+      ticketFlowStep=3;
+    }
+    else if(ticketFlowStep===3) {
+      ticketPriority = userText;
+      appendMessage("assistant","Any additional details?");
+      ticketFlowStep=4;
+    }
+    else if(ticketFlowStep===4) {
+      ticketAdditional = userText;
+      appendMessage("assistant","If you'd like to upload a screenshot, choose a file now. Otherwise say 'No' or press Enter.");
+      screenshotContainer.style.display = "block";
+      ticketFlowStep=5;
+    }
+    else if(ticketFlowStep===5) {
+      actuallyRaiseTicket();
+    }
+  }
+
+  function classifyUserError(errorMsg) {
+    fetch("/classify_error", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ error:errorMsg, session_id:sessionId })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) {
+        appendMessage("assistant","Error: "+ data.error);
+        setCurrentAction(null);
+        return;
+      }
+      classification = data.classification;
+      solution = data.solution;
+      if(classification==="YES") {
+        appendMessage("assistant", solution + " This error needs team intervention. Let's gather details.\nPlease provide a Title for your issue:");
+        ticketFlowStep=1;
+      }
+      else if(classification==="NO") {
+        appendMessage("assistant", solution);
+        appendMessage("assistant","If you'd still like to raise a ticket, type anything. Otherwise say 'No' or 'Done'.");
+        ticketFlowStep=0.5;
+      }
+      else if(classification==="MAYBE") {
+        appendMessage("assistant", solution + "\nIf you still face issues, type anything to raise a ticket, or say 'No'/'Done' to skip.");
+        ticketFlowStep=0.5;
+      }
+      else if(classification==="UNKNOWN") {
+        appendMessage("assistant","This error isn't in my data. You may provide more details or raise a ticket.\nType anything to proceed, or say 'No'/'Done' to skip.");
+        ticketFlowStep=0.5;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error: "+err);
+      setCurrentAction(null);
+    });
+  }
+
+  function actuallyRaiseTicket() {
+    const formData = new FormData();
+    formData.append("issue_title", ticketTitle);
+    formData.append("issue_description", ticketDescription);
+    formData.append("priority", ticketPriority);
+    formData.append("additional_details", ticketAdditional);
+    const file = screenshotFile.files[0];
+    if(file) formData.append("screenshot", file);
+    fetch("/raise_ticket", {
+      method:"POST",
+      body: formData
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else appendMessage("assistant", data.message || "Ticket created successfully.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error creating ticket.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleTicketStatus(tid) {
+    fetch("/ticket_status", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ticket_id: tid})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.ticket_info) appendMessage("assistant", data.ticket_info);
+      else appendMessage("assistant", data.message||"Ticket not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error checking ticket status.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleChatbot(q) {
+    fetch("/ask_chatbot", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({query: q, session_id: sessionId})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.response) {
+        lastResponse = data.response;
+        appendMessage("assistant", data.response);
+        playBtn.disabled=false;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error contacting chatbot.");
+    });
+  }
+
+  recordBtn.addEventListener("click", startRecording);
+  function startRecording() {
+    if(!('webkitSpeechRecognition' in window)) {
+      appendMessage("assistant","Speech recognition not supported.");
+      return;
+    }
+    if(recognition) { stopRecording(); return; }
+    recognition = new webkitSpeechRecognition();
+    recognition.lang='en-IN';
+    recognition.continuous=false;
+    recognition.interimResults=false;
+
+    recognition.onstart = ()=> recordBtn.classList.add("recording-on");
+    recognition.onresult = (e)=>{
+      const transcript = e.results[0][0].transcript;
+      handleUserMessage(transcript);
+    };
+    recognition.onerror = (e)=> appendMessage("assistant","Error: "+e.error);
+    recognition.onend = ()=> { recordBtn.classList.remove("recording-on"); recognition=null; };
+    recognition.start();
+  }
+  function stopRecording() { if(recognition) recognition.stop(); }
+
+  playBtn.addEventListener("click", playResponse);
+  function playResponse() {
+    if(!lastResponse) return;
+    playBtn.disabled=true;
+    const utter = new SpeechSynthesisUtterance(lastResponse);
+    const voices = speechSynthesis.getVoices();
+    heeraVoice = voices.find(v=>v.name==="Microsoft Heera - English (India)");
+    utter.voice = heeraVoice || voices[0];
+    utter.rate = 1.0;
+    utter.onend = ()=> playBtn.disabled=false;
+    speechSynthesis.speak(utter);
+  }
+</script>
+</body>
+</html> -->
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sensei Chatbot - Starry Sky with Screenshot & Voice</title> -->
+
+  <!-- Tailwind CSS -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet" /> -->
+
+  <!-- Google Fonts -->
+  <!-- <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet" /> -->
+
+  <!-- <style>
+    /* Starry sky and glassmorphism styling */
+    body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #000; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, #08081a 0%, #1a1b2e 70%, #000000 100%); z-index: -2; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>\
+          <circle cx='2' cy='2' r='1' fill='%23ffffff' />\
+        </svg>") repeat; background-size: 40px 40px; opacity: 0.4; animation: driftStars 60s linear infinite; z-index: -1; }
+    @keyframes driftStars { 0% { background-position: 0 0; } 100% { background-position: 0 2000px; } }
+    .chat-container { position: relative; width: 95%; max-width: 900px; height: 85vh; display: flex; flex-direction: column; background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 0 30px rgba(0,0,0,0.3); overflow: hidden; transform-style: preserve-3d; transition: transform 0.8s ease; }
+    .chat-container:hover { transform: perspective(1000px) rotateX(4deg) rotateY(-4deg); }
+    .chat-header { text-align: center; padding: 1rem; font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 500; background: linear-gradient(to right, #ff7b7b, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; }
+    .chat-heade  r::after { content: ""; position: absolute; bottom: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(to right, #ff7b7b, #ffb347); opacity: 0.6; }
+    .chat-window { flex: 1; overflow-y: auto; padding: 1rem; scroll-behavior: smooth; }
+    .chat-window::-webkit-scrollbar { width: 8px; }
+    .chat-window::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.15); border-radius: 9999px; }
+    .message { margin-bottom: 1rem; max-width: 80%; word-break: break-word; animation: bubble-enter 0.5s ease forwards; }
+    .message strong { display: block; font-size: 0.7rem; opacity: 0.8; margin-bottom: 0.2rem; }
+    .user-msg { text-align: right; margin-left: auto; transform: translateX(40px); opacity: 0; }
+    .assistant-msg { text-align: left; margin-right: auto; transform: translateX(-40px); opacity: 0; }
+    @keyframes bubble-enter { to { transform: translateX(0); opacity: 1; } from { opacity: 0; } }
+    .bubble { padding: 0.8rem 1rem; border-radius: 0.75rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s ease, background 0.2s ease; }
+    .bubble:hover { transform: scale(1.02); }
+    .user-msg .bubble { background: linear-gradient(90deg, rgba(80,200,255,0.2), rgba(80,200,255,0.1)); border-color: rgba(80,200,255,0.3); }
+    .assistant-msg .bubble { background: linear-gradient(90deg, rgba(255,123,123,0.2), rgba(255,179,71,0.1)); border-color: rgba(255,123,123,0.3); }
+    .input-bar { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.8rem; background: rgba(255,255,255,0.04); box-shadow: inset 0 -6px 12px rgba(0,0,0,0.3); }
+    .chat-textarea { width: 100%; resize: none; min-height: 50px; max-height: 120px; border: none; outline: none; border-radius: 0.5rem; padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.1); color: #fff; box-shadow: inset 0 2px 6px rgba(0,0,0,0.25); }
+    .input-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .icon-btn { position: relative; width: 2.5rem; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff7b7b, #ffb347); border: none; border-radius: 0.5rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+    .icon-btn:hover { transform: scale(1.08); }
+    .icon-btn:active { transform: scale(0.94); }
+    .chat-options { display: flex; justify-content: center; gap: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.06); }
+    .chat-options button { padding: 0.5rem 1rem; font-size: 0.85rem; color: #fff; background: linear-gradient(to right, #ff7b7b, #ffb347); border: none; border-radius: 0.75rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .chat-options button:hover { transform: perspective(500px) rotateX(10deg); }
+    .chat-options button:active { transform: scale(0.95); }
+    #screenshot-container { display: none; background: rgba(255,255,255,0.06); padding: 0.8rem; }
+
+    /* New Styles for Ticket Category Dropdown */
+    #ticket-category-container {
+      display: none;
+      background: rgba(255,255,255,0.06);
+      padding: 0.8rem;
+      border-radius: 0.75rem;
+      margin: 0.8rem;
+    }
+    #ticket-category-container label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+    #ticket-category {
+      width: 100%;
+      padding: 0.5rem 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      margin-bottom: 0.5rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+    }
+    #category-submit-btn {
+      width: 100%;
+      padding: 0.5rem;
+      background: linear-gradient(to right, #ff7b7b, #ffb347);
+      border: none;
+      border-radius: 0.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #category-submit-btn:hover {
+      transform: perspective(500px) rotateX(5deg);
+    }
+    #category-submit-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">Sensei Chatbot</div>
+  <div id="chat-window" class="chat-window"></div>
+
+  <!-- Ticket Category Dropdown Container -->
+  <!-- <div id="ticket-category-container">
+    <label for="ticket-category">Select Issue Category:</label>
+    <select id="ticket-category">
+      <option value="">--Select--</option>
+      <option value="Transaction related">Transaction related</option>
+      <option value="KYC">KYC</option>
+      <option value="Others">Others</option>
+    </select>
+    <button id="category-submit-btn" title="Submit Category">Submit</button>
+  </div>
+
+  <div class="input-bar">
+    <textarea id="user-input" class="chat-textarea" placeholder="Type your message..."></textarea>
+    <div class="input-actions">
+      <button id="send-btn" class="icon-btn" title="Send">Send</button>
+      <button id="record-btn" class="icon-btn" title="Record Voice">Rec</button>
+      <button id="play-btn" class="icon-btn" title="Play TTS" disabled>Play</button>
+    </div>
+  </div>
+
+  <div class="chat-options">
+    <button id="btn-view-transaction">View Transaction</button>
+    <button id="btn-raise-ticket">Raise Ticket</button>
+    <button id="btn-ticket-status">Ticket Status</button>
+    <button id="btn-chat">Ask Chatbot</button>
+  </div>
+
+  <div id="screenshot-container">
+    <label for="screenshot-file" class="block text-sm mb-1">Optional Screenshot:</label>
+    <input id="screenshot-file" type="file" accept="image/*" />
+  </div>
+</div>
+
+<script>
+  let sessionId = localStorage.getItem("chat_session_id") || ("sess_" + Math.floor(Math.random()*1000000));
+  localStorage.setItem("chat_session_id", sessionId);
+
+  const chatWindow = document.getElementById("chat-window");
+  const userInput = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const recordBtn = document.getElementById("record-btn");
+  const playBtn = document.getElementById("play-btn");
+  const screenshotContainer = document.getElementById("screenshot-container");
+  const screenshotFile = document.getElementById("screenshot-file");
+  const ticketCategoryContainer = document.getElementById("ticket-category-container");
+  const ticketCategorySelect = document.getElementById("ticket-category");
+  const categorySubmitBtn = document.getElementById("category-submit-btn");
+
+  let currentAction = null;
+  let recognition = null;
+  let lastResponse = "";
+  let heeraVoice = null;
+
+  let ticketFlowStep = 0;
+  let ticketTitle = "";
+  let ticketDescription = "";
+  let ticketPriority = "";
+  let ticketAdditional = "";
+  let classification = null;
+  let solution = null;
+
+  function appendMessage(sender, text) {
+    const msgClass = (sender==="assistant")?"assistant-msg":"user-msg";
+    const label = (sender==="assistant")?"Sensei":"You";
+    const html = `<div class="message ${msgClass}"><strong>${label}</strong><div class="bubble">${text}</div></div>`;
+    chatWindow.insertAdjacentHTML("beforeend", html);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function setCurrentAction(action) {
+    currentAction = action;
+    ticketFlowStep = 0;
+    ticketTitle = "";
+    ticketDescription = "";
+    ticketPriority = "";
+    ticketAdditional = "";
+    classification = null;
+    solution = null;
+    screenshotContainer.style.display = "none";
+    screenshotFile.value = "";
+    ticketCategoryContainer.style.display = "none";
+    ticketCategorySelect.value = "";
+  }
+
+  function resetInput() {
+    userInput.value = "";
+    userInput.focus();
+  }
+
+  document.getElementById("btn-view-transaction").addEventListener("click", ()=>{
+    setCurrentAction("transaction");
+    appendMessage("assistant","Please enter the Transaction ID:");
+  });
+
+  document.getElementById("btn-raise-ticket").addEventListener("click", ()=>{
+    setCurrentAction("raise_ticket");
+    appendMessage("assistant","Please describe the error or issue you're facing:");
+    // Start with classification step, so no dropdown yet.
+  });
+
+  document.getElementById("btn-ticket-status").addEventListener("click", ()=>{
+    setCurrentAction("ticket_status");
+    appendMessage("assistant","Please enter your Ticket ID:");
+  });
+
+  document.getElementById("btn-chat").addEventListener("click", ()=>{
+    setCurrentAction("chat");
+    appendMessage("assistant","How can I help you today?");
+  });
+
+  sendBtn.addEventListener("click", ()=>handleUserMessage());
+  userInput.addEventListener("keypress", e=>{
+    if(e.key==="Enter") { e.preventDefault(); handleUserMessage(); }
+  });
+
+  // Event Listener for Category Submission
+  categorySubmitBtn.addEventListener("click", handleCategorySelection);
+
+  function handleUserMessage(overrideText=null) {
+    const text = overrideText || userInput.value.trim();
+    if(!text) return;
+
+    // If waiting for category selection, ignore free text input
+    if(currentAction === "raise_ticket" && ticketFlowStep === -1) {
+      return;
+    }
+
+    appendMessage("user", text);
+    resetInput();
+    switch(currentAction) {
+      case "transaction": handleTransaction(text); break;
+      case "raise_ticket": handleRaiseTicketFlow(text); break;
+      case "ticket_status": handleTicketStatus(text); break;
+      case "chat": handleChatbot(text); break;
+      default: handleChatbot(text); break;
+    }
+  }
+
+  function handleTransaction(txnId) {
+    fetch("/get_transaction", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({transaction_id:txnId})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.transaction_details) appendMessage("assistant", data.transaction_details);
+      else appendMessage("assistant", data.message||"Transaction not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error fetching transaction.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleRaiseTicketFlow(userText) {
+    if(ticketFlowStep === -1) { 
+      // Waiting for dropdown selection; ignore any user text input.
+      return;
+    }
+
+    if(ticketFlowStep === 0) {
+      classifyUserError(userText);
+    }
+    else if(ticketFlowStep === 0.5) {
+      const lower = userText.toLowerCase();
+      if(lower==="no"||lower==="done") {
+        appendMessage("assistant","No problem! Let me know if you need anything else.");
+        setCurrentAction(null);
+      } else {
+        appendMessage("assistant","Please select the issue category:");
+        ticketFlowStep = -1;
+        ticketCategoryContainer.style.display = "block";
+      }
+    }
+    else if(ticketFlowStep === 1) {
+      ticketTitle = userText;
+      appendMessage("assistant","Understood. Please provide a brief description of the issue:");
+      ticketFlowStep = 2;
+    }
+    else if(ticketFlowStep === 2) {
+      ticketDescription = userText;
+      appendMessage("assistant","What is the priority? (High, Medium, Low)");
+      ticketFlowStep = 3;
+    }
+    else if(ticketFlowStep === 3) {
+      ticketPriority = userText;
+      appendMessage("assistant","Any additional details?");
+      ticketFlowStep = 4;
+    }
+    else if(ticketFlowStep === 4) {
+      ticketAdditional = userText;
+      appendMessage("assistant","If you'd like to upload a screenshot, choose a file now. Otherwise say 'No' or press Enter.");
+      screenshotContainer.style.display = "block";
+      ticketFlowStep = 5;
+    }
+    else if(ticketFlowStep === 5) {
+      actuallyRaiseTicket();
+    }
+  }
+
+  function classifyUserError(errorMsg) {
+    fetch("/classify_error", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ error:errorMsg, session_id:sessionId })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) {
+        appendMessage("assistant","Error: "+ data.error);
+        setCurrentAction(null);
+        return;
+      }
+      classification = data.classification;
+      solution = data.solution;
+      if(classification === "YES") {
+        appendMessage("assistant", solution + " This error needs team intervention. Let's gather details.");
+        appendMessage("assistant","Please select the issue category:");
+        ticketFlowStep = -1;
+        ticketCategoryContainer.style.display = "block";
+      }
+      else if(classification === "NO") {
+        appendMessage("assistant", solution);
+        setCurrentAction(null);
+      }
+      else if(classification === "MAYBE") {
+        appendMessage("assistant", solution + "\nIf you still face issues, type anything to raise a ticket, or say 'No'/'Done' to skip.");
+        ticketFlowStep = 0.5;
+      }
+      else if(classification === "UNKNOWN") {
+        appendMessage("assistant","This error isn't in my data. You may provide more details or raise a ticket.\nType anything to proceed, or say 'No'/'Done' to skip.");
+        ticketFlowStep = 0.5;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error: "+err);
+      setCurrentAction(null);
+    });
+  }
+
+  function handleTicketStatus(tid) {
+    fetch("/ticket_status", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ticket_id: tid})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.ticket_info) appendMessage("assistant", data.ticket_info);
+      else appendMessage("assistant", data.message||"Ticket not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error checking ticket status.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleChatbot(q) {
+    fetch("/ask_chatbot", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({query: q, session_id: sessionId})
+    })
+    .then(r=>res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.response) {
+        lastResponse = data.response;
+        appendMessage("assistant", data.response);
+        playBtn.disabled=false;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error contacting chatbot.");
+    });
+  }
+
+  // Handle Category Selection from Dropdown
+  function handleCategorySelection() {
+     const category = ticketCategorySelect.value;
+     if(!category) return; // Do nothing if no selection made
+
+     // Hide the dropdown after selection
+     ticketCategoryContainer.style.display = "none";
+
+     if(category === "Others") {
+         appendMessage("assistant","Please provide a Title for your issue:");
+         ticketFlowStep = 1;  // Proceed with asking for a title
+     } else {
+         ticketTitle = category;  // Use selected category as the title
+         appendMessage("assistant","Understood. Please provide a brief description of the issue:");
+         ticketFlowStep = 2;  // Skip title input and move to description step
+     }
+  }
+
+  function actuallyRaiseTicket() {
+    const formData = new FormData();
+    formData.append("issue_title", ticketTitle);
+    formData.append("issue_description", ticketDescription);
+    formData.append("priority", ticketPriority);
+    formData.append("additional_details", ticketAdditional);
+    const file = document.getElementById("screenshot-file").files[0];
+    if(file) formData.append("screenshot", file);
+    fetch("/raise_ticket", {
+      method:"POST",
+      body: formData
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else appendMessage("assistant", data.message || "Ticket created successfully.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error creating ticket.");
+      setCurrentAction(null);
+    });
+  }
+
+  recordBtn.addEventListener("click", startRecording);
+  function startRecording() {
+    if(!('webkitSpeechRecognition' in window)) {
+      appendMessage("assistant","Speech recognition not supported.");
+      return;
+    }
+    if(recognition) { stopRecording(); return; }
+    recognition = new webkitSpeechRecognition();
+    recognition.lang='en-IN';
+    recognition.continuous=false;
+    recognition.interimResults=false;
+
+    recognition.onstart = ()=> recordBtn.classList.add("recording-on");
+    recognition.onresult = (e)=>{
+      const transcript = e.results[0][0].transcript;
+      handleUserMessage(transcript);
+    };
+    recognition.onerror = (e)=> appendMessage("assistant","Error: "+ e.error);
+    recognition.onend = ()=> { recordBtn.classList.remove("recording-on"); recognition=null; };
+    recognition.start();
+  }
+  function stopRecording() { if(recognition) recognition.stop(); }
+
+  playBtn.addEventListener("click", playResponse);
+  function playResponse() {
+    if(!lastResponse) return;
+    playBtn.disabled=true;
+    const utter = new SpeechSynthesisUtterance(lastResponse);
+    const voices = speechSynthesis.getVoices();
+    heeraVoice = voices.find(v=>v.name==="Microsoft Heera - English (India)");
+    utter.voice = heeraVoice || voices[0];
+    utter.rate = 1.0;
+    utter.onend = ()=> playBtn.disabled=false;
+    speechSynthesis.speak(utter);
+  }
+</script>
+</body>
+</html> --> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sensei Chatbot - Starry Sky with Screenshot & Voice</title>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Starry sky and glassmorphism styling */
+    body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #000; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, #08081a 0%, #1a1b2e 70%, #000000 100%); z-index: -2; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>\
+          <circle cx='2' cy='2' r='1' fill='%23ffffff' />\
+        </svg>") repeat; background-size: 40px 40px; opacity: 0.4; animation: driftStars 60s linear infinite; z-index: -1; }
+    @keyframes driftStars { 0% { background-position: 0 0; } 100% { background-position: 0 2000px; } }
+    .chat-container { position: relative; width: 95%; max-width: 900px; height: 85vh; display: flex; flex-direction: column; background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 0 30px rgba(0,0,0,0.3); overflow: hidden; transform-style: preserve-3d; transition: transform 0.8s ease; }
+    .chat-container:hover { transform: perspective(1000px) rotateX(4deg) rotateY(-4deg); }
+    .chat-header { text-align: center; padding: 1rem; font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 500; background: linear-gradient(to right, #ff7b7b, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; }
+    .chat-header::after { content: ""; position: absolute; bottom: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(to right, #ff7b7b, #ffb347); opacity: 0.6; }
+    .chat-window { flex: 1; overflow-y: auto; padding: 1rem; scroll-behavior: smooth; }
+    .chat-window::-webkit-scrollbar { width: 8px; }
+    .chat-window::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.15); border-radius: 9999px; }
+    .message { margin-bottom: 1rem; max-width: 80%; word-break: break-word; animation: bubble-enter 0.5s ease forwards; }
+    .message strong { display: block; font-size: 0.7rem; opacity: 0.8; margin-bottom: 0.2rem; }
+    .user-msg { text-align: right; margin-left: auto; transform: translateX(40px); opacity: 0; }
+    .assistant-msg { text-align: left; margin-right: auto; transform: translateX(-40px); opacity: 0; }
+    @keyframes bubble-enter { to { transform: translateX(0); opacity: 1; } from { opacity: 0; } }
+    .bubble { padding: 0.8rem 1rem; border-radius: 0.75rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s ease, background 0.2s ease; }
+    .bubble:hover { transform: scale(1.02); }
+    .user-msg .bubble { background: linear-gradient(90deg, rgba(80,200,255,0.2), rgba(80,200,255,0.1)); border-color: rgba(80,200,255,0.3); }
+    .assistant-msg .bubble { background: linear-gradient(90deg, rgba(255,123,123,0.2), rgba(255,179,71,0.1)); border-color: rgba(255,123,123,0.3); }
+    .input-bar { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.8rem; background: rgba(255,255,255,0.04); box-shadow: inset 0 -6px 12px rgba(0,0,0,0.3); }
+    .chat-textarea { width: 100%; resize: none; min-height: 50px; max-height: 120px; border: none; outline: none; border-radius: 0.5rem; padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.1); color: #fff; box-shadow: inset 0 2px 6px rgba(0,0,0,0.25); }
+    .input-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .icon-btn { position: relative; width: 2.5rem; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff7b7b, #ffb347); border: none; border-radius: 0.5rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+    .icon-btn:hover { transform: scale(1.08); }
+    .icon-btn:active { transform: scale(0.94); }
+    .chat-options { display: flex; justify-content: center; gap: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.06); }
+    .chat-options button { padding: 0.5rem 1rem; font-size: 0.85rem; color: #fff; background: linear-gradient(to right, #ff7b7b, #ffb347); border: none; border-radius: 0.75rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .chat-options button:hover { transform: perspective(500px) rotateX(10deg); }
+    .chat-options button:active { transform: scale(0.95); }
+    #screenshot-container { display: none; background: rgba(255,255,255,0.06); padding: 0.8rem; }
+
+    /* New Styles for Ticket Category Dropdown */
+    #ticket-category-container {
+      display: none;
+      background: rgba(255,255,255,0.06);
+      padding: 0.8rem;
+      border-radius: 0.75rem;
+      margin: 0.8rem;
+    }
+    #ticket-category-container label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+    #ticket-category {
+      width: 100%;
+      padding: 0.5rem 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      margin-bottom: 0.5rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+    }
+    #category-submit-btn {
+      width: 100%;
+      padding: 0.5rem;
+      background: linear-gradient(to right, #ff7b7b, #ffb347);
+      border: none;
+      border-radius: 0.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #category-submit-btn:hover {
+      transform: perspective(500px) rotateX(5deg);
+    }
+    #category-submit-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">Sensei Chatbot</div>
+  <div id="chat-window" class="chat-window"></div>
+
+  <!-- Ticket Category Dropdown Container -->
+  <div id="ticket-category-container">
+    <label for="ticket-category">Select Issue Category:</label>
+    <select id="ticket-category">
+      <option value="">--Select--</option>
+      <option value="Transaction related">Transaction related</option>
+      <option value="KYC">KYC</option>
+      <option value="Others">Others</option>
+    </select>
+    <button id="category-submit-btn" title="Submit Category">Submit</button>
+  </div>
+
+  <div class="input-bar">
+    <textarea id="user-input" class="chat-textarea" placeholder="Type your message..."></textarea>
+    <div class="input-actions">
+      <button id="send-btn" class="icon-btn" title="Send">Send</button>
+      <button id="record-btn" class="icon-btn" title="Record Voice">Rec</button>
+      <button id="play-btn" class="icon-btn" title="Play TTS" disabled>Play</button>
+    </div>
+  </div>
+
+  <div class="chat-options">
+    <button id="btn-view-transaction">View Transaction</button>
+    <button id="btn-raise-ticket">Raise Ticket</button>
+    <button id="btn-ticket-status">Ticket Status</button>
+    <button id="btn-chat">Ask Chatbot</button>
+  </div>
+
+  <div id="screenshot-container">
+    <label for="screenshot-file" class="block text-sm mb-1">Optional Screenshot:</label>
+    <input id="screenshot-file" type="file" accept="image/*" />
+  </div>
+</div>
+
+<script>
+  let sessionId = localStorage.getItem("chat_session_id") || ("sess_" + Math.floor(Math.random()*1000000));
+  localStorage.setItem("chat_session_id", sessionId);
+
+  const chatWindow = document.getElementById("chat-window");
+  const userInput = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const recordBtn = document.getElementById("record-btn");
+  const playBtn = document.getElementById("play-btn");
+  const screenshotContainer = document.getElementById("screenshot-container");
+  const screenshotFile = document.getElementById("screenshot-file");
+  const ticketCategoryContainer = document.getElementById("ticket-category-container");
+  const ticketCategorySelect = document.getElementById("ticket-category");
+  const categorySubmitBtn = document.getElementById("category-submit-btn");
+
+  let currentAction = null;
+  let recognition = null;
+  let lastResponse = "";
+  let heeraVoice = null;
+
+  let ticketFlowStep = 0;
+  let ticketTitle = "";
+  let ticketDescription = "";
+  let ticketPriority = "";
+  let ticketAdditional = "";
+  let classification = null;
+  let solution = null;
+
+  function appendMessage(sender, text) {
+    const msgClass = (sender==="assistant")?"assistant-msg":"user-msg";
+    const label = (sender==="assistant")?"Sensei":"You";
+    const html = `<div class="message ${msgClass}"><strong>${label}</strong><div class="bubble">${text}</div></div>`;
+    chatWindow.insertAdjacentHTML("beforeend", html);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function setCurrentAction(action) {
+    currentAction = action;
+    ticketFlowStep = 0;
+    ticketTitle = "";
+    ticketDescription = "";
+    ticketPriority = "";
+    ticketAdditional = "";
+    classification = null;
+    solution = null;
+    screenshotContainer.style.display = "none";
+    screenshotFile.value = "";
+    ticketCategoryContainer.style.display = "none";
+    ticketCategorySelect.value = "";
+  }
+
+  function resetInput() {
+    userInput.value = "";
+    userInput.focus();
+  }
+
+  document.getElementById("btn-view-transaction").addEventListener("click", ()=>{
+    setCurrentAction("transaction");
+    appendMessage("assistant","Please enter the Transaction ID:");
+  });
+
+  document.getElementById("btn-raise-ticket").addEventListener("click", ()=>{
+    setCurrentAction("raise_ticket");
+    appendMessage("assistant","Please describe the error or issue you're facing:");
+    // Start with classification step, so no dropdown yet.
+  });
+
+  document.getElementById("btn-ticket-status").addEventListener("click", ()=>{
+    setCurrentAction("ticket_status");
+    appendMessage("assistant","Please enter your Ticket ID:");
+  });
+
+  document.getElementById("btn-chat").addEventListener("click", ()=>{
+    setCurrentAction("chat");
+    appendMessage("assistant","How can I help you today?");
+  });
+
+  sendBtn.addEventListener("click", ()=>handleUserMessage());
+  userInput.addEventListener("keypress", e=>{
+    if(e.key==="Enter") { e.preventDefault(); handleUserMessage(); }
+  });
+
+  // Event Listener for Category Submission
+  categorySubmitBtn.addEventListener("click", handleCategorySelection);
+
+  function handleUserMessage(overrideText=null) {
+    const text = overrideText || userInput.value.trim();
+    if(!text) return;
+
+    // If waiting for category selection, ignore free text input
+    if(currentAction === "raise_ticket" && ticketFlowStep === -1) {
+      return;
+    }
+
+    appendMessage("user", text);
+    resetInput();
+    switch(currentAction) {
+      case "transaction": handleTransaction(text); break;
+      case "raise_ticket": handleRaiseTicketFlow(text); break;
+      case "ticket_status": handleTicketStatus(text); break;
+      case "chat": handleChatbot(text); break;
+      default: handleChatbot(text); break;
+    }
+  }
+
+  function handleTransaction(txnId) {
+    fetch("/get_transaction", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({transaction_id:txnId})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.transaction_details) appendMessage("assistant", data.transaction_details);
+      else appendMessage("assistant", data.message||"Transaction not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error fetching transaction.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleRaiseTicketFlow(userText) {
+    if(ticketFlowStep === -1) { 
+      // Waiting for dropdown selection; ignore any user text input.
+      return;
+    }
+
+    if(ticketFlowStep === 0) {
+      classifyUserError(userText);
+    }
+    else if(ticketFlowStep === 0.5) {
+      const lower = userText.toLowerCase();
+      if(lower==="no"||lower==="done") {
+        appendMessage("assistant","No problem! Let me know if you need anything else.");
+        setCurrentAction(null);
+      } else {
+        appendMessage("assistant","Please select the issue category:");
+        ticketFlowStep = -1;
+        ticketCategoryContainer.style.display = "block";
+      }
+    }
+    else if(ticketFlowStep === 1) {
+      ticketTitle = userText;
+      appendMessage("assistant","Understood. Please provide a brief description of the issue:");
+      ticketFlowStep = 2;
+    }
+    else if(ticketFlowStep === 2) {
+      ticketDescription = userText;
+      appendMessage("assistant","What is the priority? (High, Medium, Low)");
+      ticketFlowStep = 3;
+    }
+    else if(ticketFlowStep === 3) {
+      ticketPriority = userText;
+      appendMessage("assistant","Any additional details?");
+      ticketFlowStep = 4;
+    }
+    else if(ticketFlowStep === 4) {
+      ticketAdditional = userText;
+      appendMessage("assistant","If you'd like to upload a screenshot, choose a file now. Otherwise say 'No' or press Enter.");
+      screenshotContainer.style.display = "block";
+      ticketFlowStep = 5;
+    }
+    else if(ticketFlowStep === 5) {
+      actuallyRaiseTicket();
+    }
+  }
+
+  function classifyUserError(errorMsg) {
+    fetch("/classify_error", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ error:errorMsg, session_id:sessionId })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) {
+        appendMessage("assistant","Error: "+ data.error);
+        setCurrentAction(null);
+        return;
+      }
+      classification = data.classification;
+      solution = data.solution;
+      if(classification === "YES") {
+        appendMessage("assistant", solution + " This error needs team intervention. Let's gather details.");
+        appendMessage("assistant","Please select the issue category:");
+        ticketFlowStep = -1;
+        ticketCategoryContainer.style.display = "block";
+      }
+      else if(classification === "NO") {
+        appendMessage("assistant", solution);
+        setCurrentAction(null);
+      }
+      else if(classification === "MAYBE") {
+        appendMessage("assistant", solution + "\nIf you still face issues, type anything to raise a ticket, or say 'No'/'Done' to skip.");
+        ticketFlowStep = 0.5;
+      }
+      else if(classification === "UNKNOWN") {
+        appendMessage("assistant","This error isn't in my data. You may provide more details or raise a ticket.\nType anything to proceed, or say 'No'/'Done' to skip.");
+        ticketFlowStep = 0.5;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error: "+err);
+      setCurrentAction(null);
+    });
+  }
+
+  function handleTicketStatus(tid) {
+    fetch("/ticket_status", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ticket_id: tid})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.ticket_info) appendMessage("assistant", data.ticket_info);
+      else appendMessage("assistant", data.message||"Ticket not found.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error checking ticket status.");
+      setCurrentAction(null);
+    });
+  }
+
+  function handleChatbot(q) {
+    fetch("/ask_chatbot", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({query: q, session_id: sessionId})
+    })
+    .then(r => r.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else if(data.response) {
+        lastResponse = data.response;
+        appendMessage("assistant", data.response);
+        playBtn.disabled=false;
+      }
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error contacting chatbot.");
+    });
+  }
+
+  // Handle Category Selection from Dropdown
+  function handleCategorySelection() {
+     const category = ticketCategorySelect.value;
+     if(!category) return; // Do nothing if no selection made
+
+     // Hide the dropdown after selection
+     ticketCategoryContainer.style.display = "none";
+
+     if(category === "Others") {
+         appendMessage("assistant","Please provide a Title for your issue:");
+         ticketFlowStep = 1;  // Proceed with asking for a title
+     } else {
+         ticketTitle = category;  // Use selected category as the title
+         appendMessage("assistant","Understood. Please provide a brief description of the issue:");
+         ticketFlowStep = 2;  // Skip title input and move to description step
+     }
+  }
+
+  function actuallyRaiseTicket() {
+    const formData = new FormData();
+    formData.append("issue_title", ticketTitle);
+    formData.append("issue_description", ticketDescription);
+    formData.append("priority", ticketPriority);
+    formData.append("additional_details", ticketAdditional);
+    const file = document.getElementById("screenshot-file").files[0];
+    if(file) formData.append("screenshot", file);
+    fetch("/raise_ticket", {
+      method:"POST",
+      body: formData
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.error) appendMessage("assistant","Error: "+data.error);
+      else appendMessage("assistant", data.message || "Ticket created successfully.");
+      setCurrentAction(null);
+    })
+    .catch(err=>{
+      appendMessage("assistant","Error creating ticket.");
+      setCurrentAction(null);
+    });
+  }
+
+  recordBtn.addEventListener("click", startRecording);
+  function startRecording() {
+    if(!('webkitSpeechRecognition' in window)) {
+      appendMessage("assistant","Speech recognition not supported.");
+      return;
+    }
+    if(recognition) { stopRecording(); return; }
+    recognition = new webkitSpeechRecognition();
+    recognition.lang='en-IN';
+    recognition.continuous=false;
+    recognition.interimResults=false;
+
+    recognition.onstart = ()=> recordBtn.classList.add("recording-on");
+    recognition.onresult = (e)=>{
+      const transcript = e.results[0][0].transcript;
+      handleUserMessage(transcript);
+    };
+    recognition.onerror = (e)=> appendMessage("assistant","Error: "+ e.error);
+    recognition.onend = ()=> { recordBtn.classList.remove("recording-on"); recognition=null; };
+    recognition.start();
+  }
+  function stopRecording() { if(recognition) recognition.stop(); }
+
+  playBtn.addEventListener("click", playResponse);
+  function playResponse() {
+    if(!lastResponse) return;
+    playBtn.disabled=true;
+    const utter = new SpeechSynthesisUtterance(lastResponse);
+    const voices = speechSynthesis.getVoices();
+    heeraVoice = voices.find(v=>v.name==="Microsoft Heera - English (India)");
+    utter.voice = heeraVoice || voices[0];
+    utter.rate = 1.0;
+    utter.onend = ()=> playBtn.disabled=false;
+    speechSynthesis.speak(utter);
+  }
+</script>
+</body>
+</html>
+

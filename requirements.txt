@@ -1,0 +1,4 @@
+Flask
+google-generativeai
+SpeechRecognition
+Flask-CORS
