@@ -301,7 +301,7 @@
   }
 
   function handleChatbot(q) {
-    fetch("/ask_chatbot", {
+    fetch("/chatbot", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({query: q, session_id: sessionId})
@@ -723,7 +723,7 @@
   }
 
   function handleChatbot(q) {
-    fetch("/ask_chatbot", {
+    fetch("/chatbot", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({query: q, session_id: sessionId})
@@ -1188,7 +1188,7 @@
   }
 
   function handleChatbot(q) {
-    fetch("/ask_chatbot", {
+    fetch("/chatbot", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({query: q, session_id: sessionId})
